@@ -3,208 +3,277 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEON STRIKE 3D Multiplayer</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEON STRIKE 3D - Multiplayer</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;overflow:hidden;background:#080d1c;color:white;font-family:Arial}
-#ui{position:fixed;inset:0;pointer-events:none;z-index:5}
-.panel{pointer-events:auto;background:#101b30eF;border:1px solid #294d70;
-border-radius:13px;padding:14px;box-shadow:0 5px 25px #0008}
-#menu{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-width:min(380px,92vw);text-align:center}
-h1{color:#36e9ff;margin:5px;font-size:30px}
-input{width:100%;padding:12px;margin:7px 0;background:#081323;
-border:1px solid #287c9b;border-radius:8px;color:white}
-button{padding:12px 15px;border:0;border-radius:8px;
-background:linear-gradient(90deg,#087cdd,#00d6dc);
-color:white;font-weight:bold;cursor:pointer;margin:4px}
-button:hover{filter:brightness(1.2)}
-#hud{display:none}
-#top{position:absolute;top:12px;left:12px;right:12px;
-display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
-#status{font-size:13px;color:#53edff}
-#crosshair{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-font-size:27px;color:#54faff;text-shadow:0 0 8px cyan}
-#bottom{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
-text-align:center;font-size:13px;color:#d6eaff}
-#mobile{display:none;position:absolute;bottom:15px;right:15px;pointer-events:auto}
-#mobile button{width:60px;height:60px;border-radius:50%;background:#087cddbb}
-#move{position:absolute;bottom:20px;left:15px;display:none;pointer-events:auto}
-#move button{width:55px;height:55px;border-radius:50%}
-#leader{font-size:12px;line-height:1.7}
+canvas{display:block}
+#menu{position:fixed;z-index:10;inset:0;display:grid;place-items:center;
+background:linear-gradient(135deg,#071326,#111b39)}
+.card{width:min(390px,92vw);padding:24px;background:#111f36;
+border:1px solid #236b94;border-radius:18px;text-align:center;
+box-shadow:0 0 35px #008cff33}
+h1{color:#27eaff;font-size:30px;margin:5px}
+input{width:100%;padding:13px;margin:8px 0;background:#071326;
+border:1px solid #34739a;border-radius:8px;color:white}
+button{border:0;border-radius:9px;padding:12px 16px;margin:5px;
+background:linear-gradient(90deg,#087cdd,#00cbd8);
+color:white;font-weight:bold;cursor:pointer}
+button:active{transform:scale(.96)}
+#msg{font-size:12px;color:#62eaff;overflow-wrap:anywhere}
+#hud{display:none;position:fixed;inset:0;pointer-events:none}
+.panel{background:#071629dc;border:1px solid #24516f;
+border-radius:10px;padding:10px}
+#top{position:absolute;top:10px;left:10px;right:10px;
+display:flex;justify-content:space-between;gap:8px}
+#top small{color:#5beaff}
+#cross{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+color:#4cfaff;font-size:28px;text-shadow:0 0 8px cyan}
+#weapon{position:absolute;right:9%;bottom:0;width:110px;height:150px;
+pointer-events:none}
+#weapon:before{content:"";position:absolute;right:22px;bottom:-5px;
+width:45px;height:120px;background:linear-gradient(90deg,#087b9b,#35edff,#07506e);
+clip-path:polygon(25% 0,75% 0,100% 75%,80% 100%,15% 100%,0 75%)}
+#weapon:after{content:"";position:absolute;right:34px;bottom:92px;
+width:20px;height:42px;background:#b4faff;border-radius:5px}
+#bottom{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+font-size:12px;text-align:center;white-space:nowrap;color:#ccefff}
+#mobile{display:none;position:absolute;bottom:15px;right:12px;
+pointer-events:auto}
+#mobile button{width:65px;height:65px;border-radius:50%}
+#movement{display:none;position:absolute;bottom:15px;left:10px;
+pointer-events:auto}
+#movement button{width:52px;height:52px;border-radius:50%}
+#status{color:#55eaff;font-size:12px}
 @media(max-width:700px){
- #mobile,#move{display:block}
- #bottom{bottom:135px}
+ #mobile,#movement{display:block}
+ #bottom{bottom:145px;white-space:normal;width:75%}
+ #weapon{right:5%;width:80px}
 }
 </style>
 </head>
 <body>
-<div id="ui">
- <div id="menu" class="panel">
+<div id="menu">
+ <div class="card">
   <h1>NEON STRIKE 3D</h1>
-  <p>REAL-TIME MULTIPLAYER ARENA</p>
-  <p style="color:#8caac8;font-size:13px">Create a room or join using Player ID</p>
+  <p>REAL TIME MULTIPLAYER ARENA</p>
+  <p style="color:#a4bfdc;font-size:13px">Connect using your unique Player ID</p>
   <button onclick="createRoom()">CREATE ROOM</button>
-  <hr style="border-color:#294d70">
-  <input id="joinId" placeholder="Enter Host Player ID">
-  <button onclick="joinRoom()">JOIN ROOM</button>
-  <p id="message" style="font-size:12px;color:#55eaff">Connecting system...</p>
-  <p style="font-size:11px;color:#8caac8">Share your Player ID with your friend.</p>
+  <hr style="border-color:#294c6d">
+  <input id="roomId" placeholder="Enter Host Player ID">
+  <button onclick="joinRoom()">JOIN MULTIPLAYER</button>
+  <p id="msg">Connecting to PeerJS...</p>
+  <p style="font-size:11px;color:#91a9c5">Share your ID with your friend</p>
  </div>
+</div>
 
- <div id="hud">
-  <div id="top">
-   <div class="panel">
-    <b>NEON STRIKE</b>
-    <div id="status">Connecting...</div>
-    <div id="myid" style="font-size:11px;margin-top:5px"></div>
-   </div>
-   <div class="panel">
-    <b>PLAYERS / SCORE</b>
-    <div id="leader">Waiting...</div>
-   </div>
+<div id="hud">
+ <div id="top">
+  <div class="panel">
+   <b>NEON STRIKE 3D</b><br>
+   <small id="status">Connected</small><br>
+   <small id="myid"></small><br>
+   <small id="health">Health: 100</small>
   </div>
-  <div id="crosshair">+</div>
-  <div id="bottom">WASD: MOVE | MOUSE: LOOK | CLICK: LASER | SPACE: JUMP</div>
-  <div id="move">
-   <button data-key="KeyW">↑</button><br>
-   <button data-key="KeyA">←</button>
-   <button data-key="KeyS">↓</button>
-   <button data-key="KeyD">→</button>
+  <div class="panel">
+   <b>PLAYERS / SCORE</b>
+   <div id="scores" style="font-size:12px;margin-top:6px"></div>
   </div>
-  <div id="mobile">
-   <button onclick="shoot()">FIRE</button>
-   <button onclick="jump()">JUMP</button>
-  </div>
+ </div>
+ <div id="cross">+</div>
+ <div id="weapon"></div>
+ <div id="bottom">WASD MOVE | MOUSE LOOK | CLICK FIRE | SPACE JUMP</div>
+ <div id="movement">
+  <button data-key="KeyW">↑</button><br>
+  <button data-key="KeyA">←</button>
+  <button data-key="KeyS">↓</button>
+  <button data-key="KeyD">→</button>
+ </div>
+ <div id="mobile">
+  <button onclick="fire()">FIRE</button>
+  <button onclick="jump()">JUMP</button>
  </div>
 </div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
 <script type="module">
 import * as THREE from
 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
 const $=id=>document.getElementById(id);
-let peer,host=false,connected=false,hostConn=null;
-let connections={},players={},models={},keys={};
-let myId='',myScore=0,health=100;
-let yaw=0,pitch=0,velocityY=0,grounded=true;
-let lastSend=0,lastBroadcast=0;
+let peer,myId,host=false,active=false;
+let hostConnection=null;
+let connections={};
+let players={};
+let models={};
+let keys={};
 let scene,camera,renderer,clock;
-let lasers=[];
-const SPEED=7;
-const ARENA=45;
+let yaw=0,pitch=0,vy=0,ground=true;
+let lastState=0,lastSnapshot=0;
+let beams=[];
+let myScore=0;
+let myHealth=100;
+let shootCooldown=0;
 
-const randomId=()=>'neon-'+Math.random().toString(36).slice(2,9);
+function randomID(){
+ return 'NEON-'+Math.random().toString(36).substring(2,9).toUpperCase();
+}
 
-function setMessage(t){$('message').textContent=t}
-
-peer=new Peer(randomId());
+peer=new Peer(randomID());
 
 peer.on('open',id=>{
  myId=id;
- setMessage('Ready! Your Player ID: '+id);
+ $('msg').textContent='YOUR PLAYER ID: '+id;
 });
 
-peer.on('error',e=>{
- setMessage('Network: '+e.type+'. Check your connection.');
+peer.on('error',err=>{
+ $('msg').textContent='Network error: '+err.type;
 });
 
-peer.on('connection',conn=>{
- if(!host)return;
- connections[conn.peer]=conn;
- players[conn.peer]=newPlayer(conn.peer);
- conn.on('data',data=>handleData(conn.peer,data));
- conn.on('close',()=>{
-  delete connections[conn.peer];
-  delete players[conn.peer];
-  removeModel(conn.peer);
- });
- conn.on('open',()=>{
-  conn.send({type:'welcome',players:Object.values(players)});
- });
-});
+function newPlayer(id,x=0,z=0){
+ return {
+  id,x,z,y:1.65,yaw:0,pitch:0,
+  score:0,health:100
+ };
+}
 
 window.createRoom=()=>{
- if(!peer||!myId)return setMessage('Please wait...');
+ if(!myId)return $('msg').textContent='Please wait...';
  host=true;
+ players[myId]=newPlayer(myId,0,0);
  startGame();
+
+ peer.on('connection',conn=>{
+  connections[conn.peer]=conn;
+  conn.on('data',data=>hostMessage(conn.peer,data));
+  conn.on('close',()=>{
+   delete connections[conn.peer];
+   delete players[conn.peer];
+   removeModel(conn.peer);
+   sendSnapshot();
+  });
+ });
 };
 
 window.joinRoom=()=>{
- const id=$('joinId').value.trim();
- if(!id)return setMessage('Enter Host Player ID');
- if(id===myId)return setMessage('Cannot join yourself');
- setMessage('Connecting to host...');
- const conn=peer.connect(id,{reliable:true});
+ let id=$('roomId').value.trim();
+ if(!id)return $('msg').textContent='Enter a Player ID';
+ if(id===myId)return $('msg').textContent='Cannot join yourself';
+
+ $('msg').textContent='Connecting...';
+
+ let conn=peer.connect(id,{reliable:true});
  conn.on('open',()=>{
-  hostConn=conn;
-  connected=true;
-  conn.on('data',data=>handleData(id,data));
+  host=false;
+  hostConnection=conn;
+  players[myId]=newPlayer(myId,3,3);
+
+  conn.on('data',data=>guestMessage(data));
   conn.on('close',()=>{
-   $('status').textContent='Host disconnected';
+   $('status').textContent='HOST DISCONNECTED';
+   active=false;
   });
+
   startGame();
-  conn.send({type:'join',player:newPlayer(myId)});
+
+  sendToHost({
+   type:'join',
+   player:players[myId]
+  });
  });
- conn.on('error',()=>setMessage('Connection failed. Try again.'));
+ conn.on('error',()=>{
+  $('msg').textContent='Connection failed. Check Player ID.';
+ });
 };
 
-function newPlayer(id){
- return {id,x:0,z:0,y:1.6,yaw:0,pitch:0,score:0,health:100};
-}
-
-function handleData(id,data){
- if(!data)return;
- if(data.type==='join'&&host){
-  players[id]=data.player||newPlayer(id);
-  return;
- }
- if(data.type==='state'){
-  if(host){
-   if(players[id])Object.assign(players[id],data.player);
-  }else if(data.player){
-   updateRemote(data.player);
-  }
- }
- if(data.type==='snapshot'&&!host){
-  data.players.forEach(p=>{
-   if(p.id!==myId)updateRemote(p);
-  });
-  $('leader').innerHTML=data.players.map(p=>
-   `${p.id.slice(0,12)} : ${p.score} pts`).join('<br>');
- }
- if(data.type==='shoot'&&host){
-  checkShot(id,data.origin,data.dir);
- }
- if(data.type==='hit'){
-  $('status').textContent='TARGET HIT! +10 SCORE';
-  myScore=data.score;
- }
- if(data.type==='scores'){
-  $('leader').innerHTML=data.players.map(p=>
-   `${p.id.slice(0,12)} : ${p.score} pts`).join('<br>');
- }
-}
-
 function startGame(){
+ if(active)return;
+ active=true;
  $('menu').style.display='none';
  $('hud').style.display='block';
  $('myid').textContent='ID: '+myId;
- $('status').textContent=host?'ROOM HOST':'CONNECTED';
- if(!players[myId])players[myId]=newPlayer(myId);
- connected=true;
+ $('status').textContent=host?'HOST ROOM':'GUEST CONNECTED';
  init3D();
+}
+
+function sendToHost(data){
+ if(hostConnection?.open)hostConnection.send(data);
+}
+
+function sendToGuest(id,data){
+ const c=connections[id];
+ if(c?.open)c.send(data);
+}
+
+function hostMessage(id,data){
+ if(!data)return;
+
+ if(data.type==='join'){
+  players[id]={
+   ...newPlayer(id,Math.random()*8-4,Math.random()*8-4),
+   ...data.player,
+   id
+  };
+  sendToGuest(id,{
+   type:'welcome',
+   players:Object.values(players)
+  });
+  sendSnapshot();
+ }
+
+ if(data.type==='state'&&players[id]){
+  const p=data.player;
+  Object.assign(players[id],{
+   x:p.x,z:p.z,y:p.y,
+   yaw:p.yaw,pitch:p.pitch
+  });
+ }
+
+ if(data.type==='shoot'){
+  processShot(id,data.origin,data.direction);
+ }
+}
+
+function guestMessage(data){
+ if(!data)return;
+
+ if(data.type==='welcome'||data.type==='snapshot'){
+  data.players.forEach(p=>{
+   if(p.id!==myId)updateRemote(p);
+  });
+  updateScores(data.players);
+ }
+
+ if(data.type==='state'){
+  updateRemote(data.player);
+ }
+
+ if(data.type==='shot'){
+  showBeam(data.origin,data.direction);
+ }
+
+ if(data.type==='health'){
+  if(data.id===myId){
+   myHealth=data.health;
+   $('health').textContent='Health: '+myHealth;
+  }
+ }
+
+ if(data.type==='score'){
+  myScore=data.score;
+  $('status').textContent='SCORE: '+myScore;
+ }
 }
 
 function init3D(){
  scene=new THREE.Scene();
  scene.background=new THREE.Color(0x080d1c);
- scene.fog=new THREE.Fog(0x080d1c,35,100);
+ scene.fog=new THREE.Fog(0x080d1c,40,110);
 
- camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,200);
- camera.position.set(0,1.6,0);
+ camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,150);
+ camera.position.set(0,1.65,0);
 
  renderer=new THREE.WebGLRenderer({antialias:true});
  renderer.setSize(innerWidth,innerHeight);
@@ -213,240 +282,367 @@ function init3D(){
 
  clock=new THREE.Clock();
 
- scene.add(new THREE.HemisphereLight(0x8edfff,0x17203c,2));
+ scene.add(new THREE.HemisphereLight(0xaadfff,0x20243d,2));
  const light=new THREE.DirectionalLight(0xffffff,2);
  light.position.set(10,20,10);
  scene.add(light);
 
- buildArena();
+ buildWorld();
  animate();
 }
 
-function buildArena(){
+function buildWorld(){
  const floor=new THREE.Mesh(
-  new THREE.PlaneGeometry(ARENA*2,ARENA*2),
-  new THREE.MeshStandardMaterial({color:0x172640,roughness:.8})
+  new THREE.PlaneGeometry(100,100),
+  new THREE.MeshStandardMaterial({color:0x172a45})
  );
  floor.rotation.x=-Math.PI/2;
- floor.position.y=-.12;
+ floor.position.y=-.1;
  scene.add(floor);
 
- const grid=new THREE.GridHelper(ARENA*2,50,0x00cfff,0x24446a);
- grid.position.y=-.1;
+ const grid=new THREE.GridHelper(100,50,0x00dfff,0x284b70);
+ grid.position.y=-.09;
  scene.add(grid);
 
- const wallMat=new THREE.MeshStandardMaterial({color:0x253e60});
+ const wallMat=new THREE.MeshStandardMaterial({color:0x304766});
  for(let i=0;i<4;i++){
-  let wall=new THREE.Mesh(new THREE.BoxGeometry(
-   i<2?ARENA*2:1,5,i<2?1:ARENA*2),wallMat);
+  const wall=new THREE.Mesh(
+   new THREE.BoxGeometry(i<2?100:1,5,i<2?1:100),
+   wallMat
+  );
   wall.position.set(
-   i===2?-ARENA:i===3?ARENA:0,2.5,
-   i===0?-ARENA:i===1?ARENA:0);
+   i===2?-50:i===3?50:0,
+   2.5,
+   i===0?-50:i===1?50:0
+  );
   scene.add(wall);
  }
 
- const colors=[0x126b91,0x344b80,0x176b73,0x503e80];
- for(let i=0;i<32;i++){
+ for(let i=0;i<35;i++){
   const w=2+Math.random()*4;
-  const h=2+Math.random()*7;
+  const h=3+Math.random()*7;
   const d=2+Math.random()*4;
-  const x=(Math.random()-.5)*70;
-  const z=(Math.random()-.5)*70;
-  if(Math.abs(x)<5&&Math.abs(z)<5)continue;
-  const building=new THREE.Mesh(
-   new THREE.BoxGeometry(w,h,d),
-   new THREE.MeshStandardMaterial({color:colors[i%4],roughness:.7})
-  );
-  building.position.set(x,h/2,z);
-  scene.add(building);
+  const x=(Math.random()-.5)*80;
+  const z=(Math.random()-.5)*80;
 
-  const edge=new THREE.EdgesGeometry(building.geometry);
-  const lines=new THREE.LineSegments(edge,
-   new THREE.LineBasicMaterial({color:0x30cfff}));
-  lines.position.copy(building.position);
-  scene.add(lines);
+  if(Math.abs(x)<7&&Math.abs(z)<7)continue;
+
+  const b=new THREE.Mesh(
+   new THREE.BoxGeometry(w,h,d),
+   new THREE.MeshStandardMaterial({
+    color:[0x174a75,0x334775,0x185e67,0x503f79][i%4]
+   })
+  );
+  b.position.set(x,h/2,z);
+  scene.add(b);
+
+  const edges=new THREE.LineSegments(
+   new THREE.EdgesGeometry(b.geometry),
+   new THREE.LineBasicMaterial({color:0x22c9f3})
+  );
+  edges.position.copy(b.position);
+  scene.add(edges);
  }
 }
 
-function createModel(p){
+function createRemote(p){
+ if(models[p.id])return;
+
  const group=new THREE.Group();
- const material=new THREE.MeshStandardMaterial({
-  color:Math.random()>.5?0x00dfff:0xff9b37,
-  emissive:0x063044
- });
+
  const body=new THREE.Mesh(
-  new THREE.CapsuleGeometry(.38,.85,4,8),material
+  new THREE.CapsuleGeometry(.36,.8,4,8),
+  new THREE.MeshStandardMaterial({
+   color:0x00cfff,emissive:0x003b54
+  })
  );
  body.position.y=0;
  group.add(body);
 
  const head=new THREE.Mesh(
-  new THREE.SphereGeometry(.27,12,12),
-  new THREE.MeshStandardMaterial({color:0xffd5ad})
+  new THREE.SphereGeometry(.25,16,12),
+  new THREE.MeshStandardMaterial({color:0xffd1a6})
  );
- head.position.y=.8;
+ head.position.y=.75;
  group.add(head);
 
- const blaster=new THREE.Mesh(
-  new THREE.BoxGeometry(.15,.16,.65),
-  new THREE.MeshStandardMaterial({color:0x21eaff,emissive:0x087caa})
+ const gun=new THREE.Group();
+
+ const gunBody=new THREE.Mesh(
+  new THREE.BoxGeometry(.16,.16,.7),
+  new THREE.MeshStandardMaterial({
+   color:0x21eaff,emissive:0x087b9a
+  })
  );
- blaster.position.set(.4,.3,-.35);
- group.add(blaster);
+ gunBody.position.z=-.25;
+ gun.add(gunBody);
+
+ const glow=new THREE.PointLight(0x00dfff,1,3);
+ glow.position.z=-.5;
+ gun.add(glow);
+
+ gun.position.set(.42,.2,-.15);
+ group.add(gun);
 
  scene.add(group);
  models[p.id]=group;
- updateRemote(p);
+}
+
+function updateRemote(p){
+ if(!p||p.id===myId)return;
+
+ players[p.id]={...players[p.id],...p};
+ if(!scene)return;
+
+ createRemote(p);
+
+ const model=models[p.id];
+ if(model){
+  model.position.set(p.x,p.y-1.65,p.z);
+  model.rotation.y=p.yaw||0;
+ }
 }
 
 function removeModel(id){
  if(models[id]){
   scene.remove(models[id]);
+  models[id].traverse(o=>{
+   if(o.geometry)o.geometry.dispose();
+   if(o.material){
+    if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());
+    else o.material.dispose();
+   }
+  });
   delete models[id];
  }
 }
 
-function updateRemote(p){
- if(p.id===myId)return;
- if(!players[p.id])players[p.id]=p;
- else Object.assign(players[p.id],p);
- if(!models[p.id]&&scene)createModel(p);
- if(models[p.id]){
-  models[p.id].position.set(p.x,p.y-1.6,p.z);
-  models[p.id].rotation.y=p.yaw;
- }
+function updateScores(list){
+ $('scores').innerHTML=list.map(p=>
+  `${p.id.slice(0,13)} : ${p.score||0}`
+ ).join('<br>');
+}
+
+function sendSnapshot(){
+ if(!host)return;
+ const list=Object.values(players);
+ const message={type:'snapshot',players:list};
+
+ Object.values(connections).forEach(c=>{
+  if(c.open)c.send(message);
+ });
+ updateScores(list);
 }
 
 function sendState(){
  const me=players[myId];
  if(!me)return;
+
  Object.assign(me,{
-  x:camera.position.x,z:camera.position.z,
-  y:camera.position.y,yaw,pitch,score:myScore
+  x:camera.position.x,
+  y:camera.position.y,
+  z:camera.position.z,
+  yaw,pitch,score:myScore,health:myHealth
  });
- const msg={type:'state',player:me};
+
+ const message={type:'state',player:me};
+
  if(host){
-  Object.values(connections).forEach(c=>c.open&&c.send(msg));
- }else if(hostConn?.open){
-  hostConn.send(msg);
+  Object.values(connections).forEach(c=>{
+   if(c.open)c.send(message);
+  });
+ }else{
+  sendToHost(message);
  }
 }
 
-function broadcast(){
- if(!host)return;
- const list=Object.values(players);
- const msg={type:'snapshot',players:list};
- Object.values(connections).forEach(c=>c.open&&c.send(msg));
- $('leader').innerHTML=list.map(p=>
-  `${p.id.slice(0,12)} : ${p.score} pts`).join('<br>');
+function showBeam(origin,direction){
+ const start=new THREE.Vector3(...origin);
+ const end=start.clone().add(
+  new THREE.Vector3(...direction).normalize().multiplyScalar(30)
+ );
+
+ const geometry=new THREE.BufferGeometry().setFromPoints([start,end]);
+ const line=new THREE.Line(
+  geometry,
+  new THREE.LineBasicMaterial({
+   color:0x00ffff,linewidth:3
+  })
+ );
+
+ scene.add(line);
+ beams.push({line,time:.18});
 }
 
-function checkShot(shooter,origin,dir){
- let best=null,bestT=Infinity;
+function processShot(shooter,origin,direction){
  const o=new THREE.Vector3(...origin);
- const d=new THREE.Vector3(...dir).normalize();
+ const d=new THREE.Vector3(...direction).normalize();
+
+ let target=null;
+ let closest=35;
+
  for(const p of Object.values(players)){
   if(p.id===shooter)continue;
-  const target=new THREE.Vector3(p.x,p.y-.5,p.z);
-  const v=target.sub(o);
+
+  const center=new THREE.Vector3(p.x,p.y-.7,p.z);
+  const v=center.sub(o);
   const t=v.dot(d);
-  if(t<0||t>35)continue;
+
+  if(t<0||t>closest)continue;
+
   const distance=v.sub(d.clone().multiplyScalar(t)).length();
-  if(distance<1.0&&t<bestT){
-   best=p;bestT=t;
+
+  if(distance<.85){
+   target=p;
+   closest=t;
   }
  }
- if(best){
+
+ // Every player sees the shot.
+ const message={
+  type:'shot',
+  origin,
+  direction
+ };
+
+ if(host){
+  Object.values(connections).forEach(c=>{
+   if(c.open)c.send(message);
+  });
+ }
+
+ if(target){
+  target.health=Math.max(0,(target.health??100)-25);
   players[shooter].score=(players[shooter].score||0)+10;
-  const c=connections[shooter];
-  if(c?.open)c.send({type:'hit',score:players[shooter].score});
-  if(shooter===myId)myScore=players[shooter].score;
-  broadcast();
+
+  if(target.id===myId){
+   myHealth=target.health;
+   $('health').textContent='Health: '+myHealth;
+  }
+
+  if(host){
+   sendToGuest(target.id,{
+    type:'health',id:target.id,health:target.health
+   });
+
+   if(target.id===myId){
+    myHealth=target.health;
+   }
+
+   if(target.health<=0){
+    target.health=100;
+    target.x=Math.random()*8-4;
+    target.z=Math.random()*8-4;
+    target.y=1.65;
+   }
+
+   sendSnapshot();
+  }
+  else{
+   // Guest sends the hit request to host.
+   // Host calculates the authoritative hit.
+  }
+
+  if(shooter===myId){
+   myScore=players[myId].score;
+   $('status').textContent='HIT! SCORE: '+myScore;
+  }
+
+  if(host&&shooter!==myId){
+   sendToGuest(shooter,{
+    type:'score',score:players[shooter].score
+   });
+  }
  }
 }
 
-function drawLaser(origin,dir){
- const start=new THREE.Vector3(...origin);
- const end=start.clone().add(new THREE.Vector3(...dir).multiplyScalar(30));
- const geometry=new THREE.BufferGeometry().setFromPoints([start,end]);
- const line=new THREE.Line(geometry,
-  new THREE.LineBasicMaterial({color:0x00faff}));
- scene.add(line);
- lasers.push({line,time:.15});
-}
+window.fire=()=>{
+ if(!active||!camera||shootCooldown>0)return;
+ shootCooldown=.25;
 
-window.shoot=()=>{
- if(!camera||!connected)return;
  const dir=new THREE.Vector3();
  camera.getWorldDirection(dir);
- const origin=camera.position.clone();
- drawLaser(origin.toArray(),dir.toArray());
+
+ const origin=camera.position.clone().toArray();
+ const direction=dir.toArray();
+
+ showBeam(origin,direction);
+
  if(host){
-  checkShot(myId,origin.toArray(),dir.toArray());
-  Object.values(connections).forEach(c=>{
-   if(c.open)c.send({type:'laser',origin:origin.toArray(),dir:dir.toArray()});
+  processShot(myId,origin,direction);
+ }else{
+  sendToHost({
+   type:'shoot',
+   origin,
+   direction
   });
- }else if(hostConn?.open){
-  hostConn.send({type:'shoot',origin:origin.toArray(),dir:dir.toArray()});
  }
 };
 
-function jump(){
- if(grounded){velocityY=8;grounded=false}
-}
-window.jump=jump;
+window.jump=()=>{
+ if(ground&&active){
+  vy=8;
+  ground=false;
+ }
+};
 
 function animate(){
+ if(!active)return;
  requestAnimationFrame(animate);
+
  const dt=Math.min(clock.getDelta(),.05);
- if(!camera)return;
+ const now=performance.now();
+
+ shootCooldown=Math.max(0,shootCooldown-dt);
 
  const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
  const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
- const move=new THREE.Vector3();
+ const movement=new THREE.Vector3();
 
- if(keys.KeyW)move.add(forward);
- if(keys.KeyS)move.sub(forward);
- if(keys.KeyD)move.add(right);
- if(keys.KeyA)move.sub(right);
+ if(keys.KeyW)movement.add(forward);
+ if(keys.KeyS)movement.sub(forward);
+ if(keys.KeyA)movement.sub(right);
+ if(keys.KeyD)movement.add(right);
 
- if(move.length()>0){
-  move.normalize().multiplyScalar(SPEED*dt);
-  camera.position.add(move);
+ if(movement.length()>0){
+  movement.normalize().multiplyScalar(7*dt);
+  camera.position.add(movement);
  }
 
- camera.position.x=THREE.MathUtils.clamp(camera.position.x,-43,43);
- camera.position.z=THREE.MathUtils.clamp(camera.position.z,-43,43);
+ camera.position.x=THREE.MathUtils.clamp(camera.position.x,-47,47);
+ camera.position.z=THREE.MathUtils.clamp(camera.position.z,-47,47);
 
- velocityY-=20*dt;
- camera.position.y+=velocityY*dt;
- if(camera.position.y<=1.6){
-  camera.position.y=1.6;
-  velocityY=0;
-  grounded=true;
+ vy-=20*dt;
+ camera.position.y+=vy*dt;
+
+ if(camera.position.y<1.65){
+  camera.position.y=1.65;
+  vy=0;
+  ground=true;
  }
 
  camera.rotation.order='YXZ';
  camera.rotation.y=yaw;
  camera.rotation.x=pitch;
 
- lasers.forEach((l,i)=>{
-  l.time-=dt;
-  if(l.time<=0){
-   scene.remove(l.line);
-   l.line.geometry.dispose();
-   lasers.splice(i,1);
+ beams.forEach((b,i)=>{
+  b.time-=dt;
+  if(b.time<=0){
+   scene.remove(b.line);
+   b.line.geometry.dispose();
+   b.line.material.dispose();
+   beams.splice(i,1);
   }
  });
 
- const now=performance.now();
- if(now-lastSend>50){
+ if(now-lastState>50){
   sendState();
-  lastSend=now;
+  lastState=now;
  }
- if(host&&now-lastBroadcast>100){
-  broadcast();
-  lastBroadcast=now;
+
+ if(host&&now-lastSnapshot>150){
+  sendSnapshot();
+  lastSnapshot=now;
  }
 
  renderer.render(scene,camera);
@@ -454,34 +650,42 @@ function animate(){
 
 window.addEventListener('keydown',e=>{
  keys[e.code]=true;
- if(e.code==='Space'){e.preventDefault();jump()}
+ if(e.code==='Space'){
+  e.preventDefault();
+  jump();
+ }
 });
-window.addEventListener('keyup',e=>keys[e.code]=false);
 
-rendererSetup();
-function rendererSetup(){
- document.addEventListener('click',()=>{
-  if(connected&&renderer&&document.pointerLockElement!==renderer.domElement)
-   renderer.domElement.requestPointerLock?.();
- });
- document.addEventListener('mousemove',e=>{
-  if(document.pointerLockElement===renderer?.domElement){
-   yaw-=e.movementX*.002;
-   pitch-=e.movementY*.002;
-   pitch=THREE.MathUtils.clamp(pitch,-1.4,1.4);
-  }
- });
- document.addEventListener('mousedown',e=>{
-  if(e.button===0&&connected&&document.pointerLockElement===renderer?.domElement)
-   shoot();
- });
-}
+window.addEventListener('keyup',e=>{
+ keys[e.code]=false;
+});
+
+document.addEventListener('mousemove',e=>{
+ if(document.pointerLockElement===renderer?.domElement){
+  yaw-=e.movementX*.002;
+  pitch-=e.movementY*.002;
+  pitch=THREE.MathUtils.clamp(pitch,-1.35,1.35);
+ }
+});
+
+document.addEventListener('mousedown',e=>{
+ if(e.button===0&&active)fire();
+});
+
+document.addEventListener('click',e=>{
+ if(active&&e.target===renderer?.domElement){
+  renderer.domElement.requestPointerLock?.();
+ }
+});
 
 document.querySelectorAll('[data-key]').forEach(btn=>{
  const k=btn.dataset.key;
- btn.addEventListener('pointerdown',e=>{e.preventDefault();keys[k]=true});
+ btn.addEventListener('pointerdown',e=>{
+  e.preventDefault();keys[k]=true;
+ });
  btn.addEventListener('pointerup',()=>keys[k]=false);
  btn.addEventListener('pointerleave',()=>keys[k]=false);
+ btn.addEventListener('pointercancel',()=>keys[k]=false);
 });
 
 window.addEventListener('resize',()=>{
